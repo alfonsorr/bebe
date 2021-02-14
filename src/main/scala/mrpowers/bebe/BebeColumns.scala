@@ -1,6 +1,7 @@
 package mrpowers.bebe
 
 import org.apache.spark.sql.{functions, Column, DataFrame}
+import org.apache.spark.sql.catalyst.expressions.{AddMonths, Expression}
 import org.apache.spark.sql.types.{DataType, DateType, IntegerType}
 
 object Columns {
@@ -38,7 +39,7 @@ object Columns {
       DateColumn(functions.to_date(col))
     }
 
-    def add_months(numMonths: IntegerColumn): TimestampColumn = TimestampColumn(functions.add_months(col, numMonths.col))
+    def add_months(numMonths: IntegerColumn): TimestampColumn = TimestampColumn(AddMonths(col.expr, numMonths.col.expr))
   }
 
 
@@ -47,7 +48,7 @@ object Columns {
 
     def end_of_month: DateColumn = DateColumn(functions.last_day(col))
 
-    def add_months(numMonths: IntegerColumn): DateColumn = DateColumn(functions.add_months(col, numMonths.col))
+    def add_months(numMonths: IntegerColumn): DateColumn = DateColumn(AddMonths(col.expr, numMonths.col.expr))
   }
 
 
@@ -55,6 +56,7 @@ object Columns {
 
   object TimestampColumn {
     def apply(strCol: String): TimestampColumn = TimestampColumn(org.apache.spark.sql.functions.col(strCol))
+    def apply(expr: Expression): TimestampColumn = TimestampColumn(new Column(expr))
   }
 
 
@@ -62,6 +64,7 @@ object Columns {
 
   object DateColumn {
     def apply(strCol: String): DateColumn = DateColumn(org.apache.spark.sql.functions.col(strCol))
+    def apply(expr: Expression): DateColumn = DateColumn(new Column(expr))
 
     implicit val integerFromDf: FromDf[DateColumn] = new FromDf[DateColumn] {
       override val dataType: DataType = DateType

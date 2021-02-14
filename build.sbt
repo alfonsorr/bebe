@@ -2,10 +2,16 @@ organization := "com.github.mrpowers"
 name := "bebe"
 
 version := "0.0.1"
+lazy val scala212 = "2.12.13"
+lazy val scala211 = "2.11.12"
+scalaVersion := scala212
+crossScalaVersions := List(scala212, scala211)
 
-scalaVersion := "2.12.12"
-
-libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.1.0" % "provided"
+libraryDependencies ++= {CrossVersion.partialVersion(scalaVersion.value) match {
+  case Some((2, 12)) => List("org.apache.spark" %% "spark-sql" % "3.1.0" % "provided")
+  case Some((2, 11)) => List("org.apache.spark" %% "spark-sql" % "2.4.7" % "provided")
+  case _ => Nil
+}}
 
 libraryDependencies += "com.github.mrpowers" %% "spark-daria" % "0.38.2" % "test"
 libraryDependencies += "com.github.mrpowers" %% "spark-fast-tests" % "0.21.3" % "test"
